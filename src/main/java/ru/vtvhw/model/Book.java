@@ -4,15 +4,17 @@ public class Book {
     private long id;
     private String title;
     private String author;
+    private String genre;
     private int numberOfPages;
 
     public Book() {
-        this("Unknown book", "Unknown author", 0);
+        this("Unknown book", "Unknown author", "Unknown genre", 0);
     }
 
-    public Book(String title, String author, int numberOfPages) {
+    public Book(String title, String author, String genre, int numberOfPages) {
         this.title = title;
         this.author = author;
+        this.genre = genre;
         this.numberOfPages = numberOfPages;
     }
 
@@ -38,6 +40,14 @@ public class Book {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
     }
 
     public int getNumberOfPages() {

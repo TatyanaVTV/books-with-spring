@@ -11,10 +11,10 @@ public class InMemoryBooksDaoImpl implements BooksDao {
 
     @PostConstruct
     private void init() {
-        addBook(new Book("Spring в действии", "Крейг Уоллс", 543));
-        addBook(new Book("Head First. Паттерны проектирования", "Эрик Фримен, Элизабет Робсон", 640));
-        addBook(new Book("Философия Java", "Брюс Эккель", 1168));
-        addBook(new Book("Создание микросервисов", "Сэм Ньюмен", 624));
+        addBook(new Book("Spring в действии", "Крейг Уоллс", "Учебная литература", 543));
+        addBook(new Book("Head First. Паттерны проектирования", "Эрик Фримен, Элизабет Робсон", "Учебная литература", 640));
+        addBook(new Book("Философия Java", "Брюс Эккель", "Учебная литература", 1168));
+        addBook(new Book("Создание микросервисов", "Сэм Ньюмен", "Учебная литература", 624));
     }
 
     @Override
