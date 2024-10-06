@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import ru.vtvhw.model.Book;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class InMemoryBooksDaoImpl implements BooksDao {
     private final Map<Long, Book> booksIdMap = new HashMap<>();
@@ -19,7 +20,7 @@ public class InMemoryBooksDaoImpl implements BooksDao {
 
     @Override
     public List<Book> getAllBooks() {
-        return new ArrayList<>(booksIdMap.values());
+        return booksIdMap.values().stream().filter(book -> !book.isDeleted()).collect(Collectors.toList());
     }
 
     @Override
@@ -41,7 +42,8 @@ public class InMemoryBooksDaoImpl implements BooksDao {
 
     @Override
     public void deleteBookById(long bookId) {
-        booksIdMap.remove(bookId);
+        var deletedBook = getBookById(bookId);
+        deletedBook.setDeleted(true);
     }
 
     @Override
@@ -49,6 +51,7 @@ public class InMemoryBooksDaoImpl implements BooksDao {
         var bookFromStorage = getBookById(book.getId());
         bookFromStorage.setTitle(book.getTitle());
         bookFromStorage.setAuthor(book.getAuthor());
+        bookFromStorage.setGenre(book.getGenre());
         bookFromStorage.setNumberOfPages(book.getNumberOfPages());
     }
 }

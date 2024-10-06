@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 public class BooksService {
 
-    private BooksDao booksDao;
+    private final BooksDao booksDao;
 
     @Autowired
     public BooksService(BooksDao booksDao) {
@@ -23,5 +23,17 @@ public class BooksService {
 
     public Book getBookById(long bookId) {
         return booksDao.getBookById(bookId);
+    }
+
+    public void createBook(Book book) {
+        booksDao.addBook(book);
+    }
+
+    public void updateBook(long bookId, Book book) {
+        booksDao.updateBookById(bookId, book);
+    }
+
+    public void deleteBookById(long bookId) {
+        booksDao.deleteBookById(bookId);
     }
 }

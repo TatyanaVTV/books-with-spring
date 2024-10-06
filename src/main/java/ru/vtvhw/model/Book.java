@@ -6,6 +6,7 @@ public class Book {
     private String author;
     private String genre;
     private int numberOfPages;
+    private boolean deleted;
 
     public Book() {
         this("Unknown book", "Unknown author", "Unknown genre", 0);
@@ -16,6 +17,7 @@ public class Book {
         this.author = author;
         this.genre = genre;
         this.numberOfPages = numberOfPages;
+        this.deleted = false;
     }
 
     public long getId() {
@@ -56,5 +58,13 @@ public class Book {
 
     public void setNumberOfPages(int numberOfPages) {
         this.numberOfPages = numberOfPages;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }
