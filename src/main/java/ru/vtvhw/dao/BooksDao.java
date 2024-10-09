@@ -7,9 +7,9 @@ import java.util.Optional;
 
 public interface BooksDao {
     List<Book> getAllBooks();
-    Optional<Book> findBookById(long id);
-    Book getBookById(long id);
-    void addBook(Book book);
-    void deleteBookById(long id);
-    void updateBookById(long id, Book book);
+    Optional<Book> findBookById(long bookId);
+    Book getBookById(long bookId);
+    long addBook(Book book);
+    void deleteBookById(long bookId);
+    void updateBookById(long bookId, Book book);
 }

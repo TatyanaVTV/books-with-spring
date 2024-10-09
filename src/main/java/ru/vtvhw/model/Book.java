@@ -1,5 +1,7 @@
 package ru.vtvhw.model;
 
+import java.util.Objects;
+
 public class Book {
     private long id;
     private String title;
@@ -18,6 +20,12 @@ public class Book {
         this.genre = genre;
         this.numberOfPages = numberOfPages;
         this.deleted = false;
+    }
+
+    public Book(long id, String title, String author, String genre, int numberOfPages, boolean deleted) {
+        this(title, author, genre, numberOfPages);
+        setId(id);
+        setDeleted(deleted);
     }
 
     public long getId() {
@@ -66,5 +74,30 @@ public class Book {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    @Override
+    public String toString() {
+        return "Book{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", author='" + author + '\'' +
+                ", genre='" + genre + '\'' +
+                ", numberOfPages=" + numberOfPages +
+                ", deleted=" + deleted +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Book book = (Book) o;
+        return id == book.id && numberOfPages == book.numberOfPages && deleted == book.deleted && Objects.equals(title, book.title) && Objects.equals(author, book.author) && Objects.equals(genre, book.genre);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, author, genre, numberOfPages, deleted);
     }
 }

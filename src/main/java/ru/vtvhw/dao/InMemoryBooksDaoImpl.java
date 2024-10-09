@@ -35,9 +35,11 @@ public class InMemoryBooksDaoImpl implements BooksDao {
     }
 
     @Override
-    public void addBook(Book book) {
-        book.setId(nextId++);
+    public long addBook(Book book) {
+        var newBookId = nextId++;
+        book.setId(newBookId);
         booksIdMap.put(book.getId(), book);
+        return newBookId;
     }
 
     @Override
@@ -47,7 +49,7 @@ public class InMemoryBooksDaoImpl implements BooksDao {
     }
 
     @Override
-    public void updateBookById(long id, Book book) {
+    public void updateBookById(long bookId, Book book) {
         var bookFromStorage = getBookById(book.getId());
         bookFromStorage.setTitle(book.getTitle());
         bookFromStorage.setAuthor(book.getAuthor());
