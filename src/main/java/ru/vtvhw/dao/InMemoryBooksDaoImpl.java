@@ -2,13 +2,15 @@ package ru.vtvhw.dao;
 
 import jakarta.annotation.PostConstruct;
 import ru.vtvhw.model.Book;
+import ru.vtvhw.model.BookNotFoundException;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class InMemoryBooksDaoImpl implements BooksDao {
-    private final Map<Long, Book> booksIdMap = new HashMap<>();
-    private long nextId = 1L;
+    private final Map<Long, Book> booksIdMap = new ConcurrentHashMap<>();
+    private volatile long nextId = 1L;
 
     @PostConstruct
     private void init() {
@@ -29,9 +31,9 @@ public class InMemoryBooksDaoImpl implements BooksDao {
     }
 
     @Override
-    public Book getBookById(long bookId) {
+    public Book getBookById(long bookId) throws BookNotFoundException {
         return findBookById(bookId)
-                .orElseThrow(() -> new IllegalArgumentException("Book not found! Id: " + bookId));
+                .orElseThrow(() -> new BookNotFoundException(bookId));
     }
 
     @Override

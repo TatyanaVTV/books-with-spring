@@ -1,12 +1,14 @@
 package ru.vtvhw.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import ru.vtvhw.model.Book;
+import ru.vtvhw.model.BookNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -69,12 +71,16 @@ public class PostgreSqlDaoImpl implements BooksDao {
     }
 
     @Override
-    public Book getBookById(long bookId) {
-        return namedJdbcTemplate.queryForObject(
-                GET_BOOK_BY_ID_SQL,
-                new MapSqlParameterSource("bookId", bookId),
-                BOOK_ROW_MAPPER
-        );
+    public Book getBookById(long bookId) throws BookNotFoundException {
+        try {
+            return namedJdbcTemplate.queryForObject(
+                    GET_BOOK_BY_ID_SQL,
+                    new MapSqlParameterSource("bookId", bookId),
+                    BOOK_ROW_MAPPER
+            );
+        } catch (EmptyResultDataAccessException e) {
+            throw new BookNotFoundException(bookId);
+        }
     }
 
 

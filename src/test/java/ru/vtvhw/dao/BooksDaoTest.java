@@ -8,12 +8,14 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.vtvhw.config.BooksAppConfig;
 import ru.vtvhw.model.Book;
+import ru.vtvhw.model.BookNotFoundException;
 
 import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -85,10 +87,16 @@ public record BooksDaoTest(@Autowired DataSource dataSource, @Autowired BooksDao
     }
 
     @Test
-    void getBookById() {
+    void getExistingBookById() {
         var book = booksDao.getBookById(DESIGN_PATTERNS.getId());
 
         assertThat(book).isEqualTo(DESIGN_PATTERNS);
+    }
+
+    @Test
+    void getNotExistingBookById() {
+        assertThatThrownBy(() -> booksDao.getBookById(99999))
+                .isInstanceOf(BookNotFoundException.class);
     }
 
     @Test
@@ -108,7 +116,7 @@ public record BooksDaoTest(@Autowired DataSource dataSource, @Autowired BooksDao
 
     @Test
     void findNotExistingBook() {
-        var notExistingBook = booksDao.findBookById(999);
+        var notExistingBook = booksDao.findBookById(99999);
         assertThat(notExistingBook).isEqualTo(Optional.empty());
     }
 
