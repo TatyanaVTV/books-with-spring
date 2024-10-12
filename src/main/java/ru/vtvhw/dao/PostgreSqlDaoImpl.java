@@ -122,4 +122,20 @@ public class PostgreSqlDaoImpl implements BooksDao {
                         .addValue("bookId", bookId)
         );
     }
+
+    @Override
+    public void addBooks(List<Book> books) {
+        var args = books.stream()
+                .map(book -> new MapSqlParameterSource()
+                        .addValue("title", book.getTitle())
+                        .addValue("author", book.getAuthor())
+                        .addValue("genre", book.getGenre())
+                        .addValue("pages", book.getNumberOfPages())
+                        .addValue("deleted", false))
+                .toArray(MapSqlParameterSource[]::new);
+        namedJdbcTemplate.batchUpdate(
+                "insert into books(title, author, genre, pages, deleted)" +
+                    "values (:title, :author, :genre, :pages, :deleted)"
+                , args);
+    }
 }

@@ -9,6 +9,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.vtvhw.config.BooksAppConfig;
 import ru.vtvhw.model.Book;
 import ru.vtvhw.model.BookNotFoundException;
+import ru.vtvhw.service.BooksLoader;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -16,7 +17,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link BooksDao}.
@@ -27,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = BooksAppConfig.class)
 @Sql("classpath:/db/books-db.sql")
-public record BooksDaoTest(@Autowired DataSource dataSource, @Autowired BooksDao booksDao) {
+public record BooksDaoTest(@Autowired DataSource dataSource, @Autowired BooksDao booksDao, @Autowired BooksLoader booksLoader) {
 
     private static final Book SPRING_IN_ACTION =
             new Book(1L,
@@ -74,6 +76,8 @@ public record BooksDaoTest(@Autowired DataSource dataSource, @Autowired BooksDao
      */
     private static final List<Book> PERSISTED_BOOKS =
             List.of(SPRING_IN_ACTION, DESIGN_PATTERNS, THE_PHILOSOPHY_OF_JAVA, BUILDING_MICROSERVICES);
+
+    private static final String CORRECT_BOOKS_FILE_NAME = "csv/OneThousandTestBooks.csv";
 
     @Test
     void addBook() {
@@ -156,5 +160,16 @@ public record BooksDaoTest(@Autowired DataSource dataSource, @Autowired BooksDao
         assertFalse(booksDao.getBookById(bookId).isDeleted());
         booksDao.deleteBookById(bookId);
         assertTrue(booksDao.getBookById(bookId).isDeleted());
+    }
+
+    @Test
+    void testAddBooksWithCorrectFile() {
+        var booksCount = booksDao.getAllBooks().size();
+
+        var booksToLoad = booksLoader.loadBooksFromFile(CORRECT_BOOKS_FILE_NAME);
+        booksDao.addBooks(booksToLoad);
+
+        assertThat(booksToLoad.size()).isGreaterThan(0);
+        assertThat(booksDao.getAllBooks().size()).isEqualTo(booksCount + booksToLoad.size());
     }
 }

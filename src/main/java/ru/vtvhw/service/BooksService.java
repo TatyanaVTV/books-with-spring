@@ -11,10 +11,12 @@ import java.util.List;
 public class BooksService {
 
     private final BooksDao booksDao;
+    private final BooksLoader booksLoader;
 
     @Autowired
-    public BooksService(BooksDao booksDao) {
+    public BooksService(BooksDao booksDao, BooksLoader booksLoader) {
         this.booksDao = booksDao;
+        this.booksLoader = booksLoader;
     }
 
     public List<Book> getAllBooks() {
@@ -35,5 +37,10 @@ public class BooksService {
 
     public void deleteBookById(long bookId) {
         booksDao.deleteBookById(bookId);
+    }
+
+    public void loadBooks(String fileName) {
+        var booksToLoad = booksLoader.loadBooksFromFile(fileName);
+        booksDao.addBooks(booksToLoad);
     }
 }

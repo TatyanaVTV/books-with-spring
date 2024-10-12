@@ -6,11 +6,12 @@ import ru.vtvhw.model.BookNotFoundException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class InMemoryBooksDaoImpl implements BooksDao {
     private final Map<Long, Book> booksIdMap = new ConcurrentHashMap<>();
-    private volatile long nextId = 1L;
+    private final AtomicLong nextId = new AtomicLong(1L);
 
     @PostConstruct
     private void init() {
@@ -38,7 +39,7 @@ public class InMemoryBooksDaoImpl implements BooksDao {
 
     @Override
     public long addBook(Book book) {
-        var newBookId = nextId++;
+        var newBookId = nextId.getAndIncrement();
         book.setId(newBookId);
         booksIdMap.put(book.getId(), book);
         return newBookId;
@@ -57,5 +58,10 @@ public class InMemoryBooksDaoImpl implements BooksDao {
         bookFromStorage.setAuthor(book.getAuthor());
         bookFromStorage.setGenre(book.getGenre());
         bookFromStorage.setNumberOfPages(book.getNumberOfPages());
+    }
+
+    @Override
+    public void addBooks(List<Book> books) {
+        books.forEach(this::addBook);
     }
 }
