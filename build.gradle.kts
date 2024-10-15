@@ -10,6 +10,9 @@ repositories {
 }
 
 dependencies {
+    compileOnly("org.projectlombok:lombok:1.18.34")
+    annotationProcessor("org.projectlombok:lombok:1.18.34")
+
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
@@ -21,6 +24,9 @@ dependencies {
 
     implementation("org.springframework:spring-jdbc:6.1.13")
     implementation("org.apache.commons:commons-dbcp2:2.12.0")
+
+    implementation("org.hibernate.orm:hibernate-core:6.6.1.Final")
+
     implementation("org.postgresql:postgresql:42.7.4")
 }
 

@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html xmlns:th="htt[://thymeleaf.org">
+<head>
+    <title>Books Service</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="/css/style-content.css">
+    <link rel="stylesheet" href="/css/style-header.css">
+</head>
+    <body>
+        <div th:insert="~{header :: content}"></div>
+        <div>
+            <h1>Creating a Book</h1>
+        </div>
+        <div>
+            <form method="post" action="/books/create">
+                <table>
+                    <tr class="borderless">
+                        <td class="borderless"><label for="title">Title:</label></td>
+                        <td class="borderless-cnt"><input id="title" type="text" name="title" maxlength="100" required/></td>
+                    </tr>
+                    <tr class="borderless">
+                        <td class="borderless"><label for="genre">Genre: </label></td>
+                        <td class="borderless-cnt"><input id="genre" type="text" name="genre" maxlength="50"/></td>
+                    </tr>
+                    <tr class="borderless">
+                        <td class="borderless"><label for="pagesNb">Number of pages: </label></td>
+                        <td class="borderless-cnt"><input type="number" max="3000" id="pagesNb" placeholder="0" name="numberOfPages"/></td>
+                    </tr>
+                    <tr class="borderless">
+                        <td class="borderless"></td>
+                        <td class="borderless"><input id="saveBookBtn" type="submit" value="Save" class="btn" /></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div>
+            <hr>
+            <form>
+                <input type="button" onclick="location.href='/books/'" value="<< Back" class="btn" />
+            </form>
+        </div>
+        <div th:insert="~{footer :: copy}"></div>
+    </body>
+</html>

@@ -1,103 +1,84 @@
 package ru.vtvhw.model;
 
-import java.util.Objects;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.SoftDelete;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import static jakarta.persistence.GenerationType.SEQUENCE;
+
+@Entity
+@Table(name = "books")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@SoftDelete
 public class Book {
+
+    @Id
+    @SequenceGenerator(name = "bookIdSeq", sequenceName = "books_book_id_seq", initialValue = 6, allocationSize = 1)
+    @GeneratedValue(strategy = SEQUENCE, generator = "bookIdSeq")
+    @Column(name = "book_id")
     private long id;
-    private String title;
-    private String author;
-    private String genre;
+
+    @Column(nullable = false)
+    private String title = "Unknown book";
+
+//    @Column
+//    private String author = "Unknown author";
+
+    @Column
+    private String genre = "Unknown genre";
+
+    @Column(name = "pages")
     private int numberOfPages;
+
+    @Column(nullable = false, insertable = false, updatable = false)
+    @EqualsAndHashCode.Exclude
     private boolean deleted;
 
-    public Book() {
-        this("Unknown book", "Unknown author", "Unknown genre", 0);
-    }
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+            targetEntity = Author.class)
+    @JoinTable(name = "author_books",
+            joinColumns = @JoinColumn(name = "book_id", referencedColumnName = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id", referencedColumnName = "author_id"))//,
+//            uniqueConstraints = { @UniqueConstraint(name = "UniqueAuthorAndBook", columnNames = { "author_id", "book_id" } )})
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Author> authors = new HashSet<>();
 
-    public Book(String title, String author, String genre, int numberOfPages) {
+    public Book(String title, String genre, int numberOfPages) {
         this.title = title;
-        this.author = author;
+//        this.author = author;
         this.genre = genre;
         this.numberOfPages = numberOfPages;
         this.deleted = false;
     }
 
-    public Book(long id, String title, String author, String genre, int numberOfPages, boolean deleted) {
-        this(title, author, genre, numberOfPages);
-        setId(id);
-        setDeleted(deleted);
+    public Book(long id, String title, String genre, int numberOfPages) {
+        this(title, genre, numberOfPages);
+        this.setId(id);
     }
 
-    public long getId() {
-        return id;
+    public Book(long id, String title, String genre, int numberOfPages, boolean isDeleted) {
+        this(id, title, genre, numberOfPages);
+        this.setDeleted(isDeleted);
     }
 
-    public void setId(long id) {
-        this.id = id;
+
+    public void addAuthor(Author author) {
+        authors.add(author);
     }
 
-    public String getTitle() {
-        return title;
+    public void removeAuthor(Author author) {
+        authors.remove(author);
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public String getGenre() {
-        return genre;
-    }
-
-    public void setGenre(String genre) {
-        this.genre = genre;
-    }
-
-    public int getNumberOfPages() {
-        return numberOfPages;
-    }
-
-    public void setNumberOfPages(int numberOfPages) {
-        this.numberOfPages = numberOfPages;
-    }
-
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-    }
-
-    @Override
-    public String toString() {
-        return "Book{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", author='" + author + '\'' +
-                ", genre='" + genre + '\'' +
-                ", numberOfPages=" + numberOfPages +
-                ", deleted=" + deleted +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Book book = (Book) o;
-        return id == book.id && numberOfPages == book.numberOfPages && deleted == book.deleted && Objects.equals(title, book.title) && Objects.equals(author, book.author) && Objects.equals(genre, book.genre);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, title, author, genre, numberOfPages, deleted);
+    @PreRemove
+    public void removeBookAssociations() {
+        authors.forEach(author -> author.removeBook(this));
     }
 }

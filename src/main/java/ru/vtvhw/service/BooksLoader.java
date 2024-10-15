@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import ru.vtvhw.model.Book;
-import ru.vtvhw.model.BooksLoadFileFormatException;
+import ru.vtvhw.exceptions.BooksLoadFileFormatException;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -42,7 +42,7 @@ public class BooksLoader {
                     var genre = bookRowParts[2];
                     var pages = Integer.parseInt(bookRowParts[3]);
 
-                    books.add(new Book(title, author, genre, pages));
+                    books.add(new Book(0, title, genre, pages));
                 }
             });
         } catch (IOException e) {

@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html xmlns:th="htt[://thymeleaf.org">
+<head>
+    <title>Books Service</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="/css/style-content.css">
+    <link rel="stylesheet" href="/css/style-header.css">
+</head>
+    <body>
+        <div th:insert="~{header :: content}"></div>
+        <div>
+            <h1>Modifying an Author</h1>
+        </div>
+        <div>
+            <form th:method="put" th:action="@{/authors/update}">
+                <table>
+                    <tr>
+                        <td class="borderless-cnt"><input id="authorId" type="hidden" name="id" th:value="*{author.id}"/></td>
+                    </tr>
+                    <tr class="borderless">
+                        <td class="borderless"><label for="name">Name:</label></td>
+                        <td class="borderless-cnt">
+                            <input id="name" type="text" name="name" th:value="*{author.name}" maxlength="100" required/>
+                        </td>
+                    </tr>
+                    <tr class="borderless">
+                        <td class="borderless"></td>
+                        <td class="borderless">
+                            <input id="saveBookBtn" type="submit" value="Save" class="btn" />
+                        </td>
+                    </tr>
+                </table>
+                <br>
+            </form>
+        </div>
+        <div>
+            <h4>Author books:</h4>
+            <table>
+                <tr th:each="book: ${books}">
+                    <td><a th:href="@{'/books/view?id=' + ${book.id}}" th:text="${book.title}"></a></td>
+                    <td>
+                        <form id="'delete_author_book_form_' + ${book.id}" th:method="put"
+                              th:action="@{'/authors/delete/' + ${author.id} + '/book/' + ${book.id}}">
+                            <img src="/images/Delete.png" alt="Delete" class="btn-icon"
+                                 onclick="document.getElementById('delete_author_book_form_[[${book.id}]]').submit();">
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <hr>
+            <form>
+                <input type="button" onclick="location.href='/authors/'" value="<< Authors" class="btn" />
+<!--                <input type="button" onclick="javascript:history.back()" value="<< Back" class="btn" />-->
+            </form>
+        </div>
+        <div th:insert="~{footer :: copy}"></div>
+    </body>
+</html>

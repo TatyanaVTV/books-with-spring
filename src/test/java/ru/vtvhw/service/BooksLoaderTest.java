@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.vtvhw.config.BooksAppConfig;
-import ru.vtvhw.model.BooksLoadFileFormatException;
+import ru.vtvhw.exceptions.BooksLoadFileFormatException;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;

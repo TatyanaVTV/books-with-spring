@@ -40,6 +40,7 @@ public class JdbcConfiguration {
         dataSource.setUrl(jdbcUrl);
         dataSource.setUsername(jdbcUser);
         dataSource.setPassword(jdbcPassword);
+
         return dataSource;
     }
 

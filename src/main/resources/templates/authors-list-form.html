@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>Books Service</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="/css/style-content.css">
+    <link rel="stylesheet" href="/css/style-header.css">
+</head>
+<body>
+    <div th:insert="~{header :: content}"></div>
+    <div><h1>List of Authors</h1></div>
+    <div>
+        <table>
+            <tr>
+                <th width="200px">Name</th>
+                <th width="400px">Books</th>
+                <th width="50px"></th>
+                <th width="50px"></th>
+            </tr>
+            <tr th:each="author: ${authors}">
+                <td><a th:href="@{'/authors/view?id=' + ${author.id}}" th:text="${author.name}"></a></td>
+                <td>
+                    <ul th:each="book : ${author.books}">
+<!--                        <span th:text="${book.title}"></span>-->
+                        <a th:href="@{'/books/view?id=' + ${book.id}}" th:text="${book.title}"></a>
+                    </ul>
+                </td>
+                <td>
+                    <form>
+                        <a th:href="@{'/authors/edit-form/' + ${author.id}}" class="btn-icon">
+                            <img src="/images/Pen.png" alt="Edit author" class="btn-icon">
+                        </a>
+                    </form>
+                </td>
+                <td>
+                    <form th:id="'delete_author_form_' + ${author.id}" th:method="put" th:action="@{'/authors/delete/' + ${author.id}}">
+                        <img src="/images/Delete.png" alt="Delete author" class="btn-icon"
+                                 th:onclick="document.getElementById('delete_author_form_[[${author.id}]]').submit();">
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <form>
+            <input type="button" onclick="location.href='/authors/create-form'" value="Add author" class="btn" />
+        </form>
+    </div>
+    <div th:insert="~{footer :: copy}"></div>
+</body>
+</html>

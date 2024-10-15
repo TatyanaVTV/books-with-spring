@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>Books Service</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="/css/style-content.css">
+    <link rel="stylesheet" href="/css/style-header.css">
+</head>
+<body>
+    <div th:insert="~{header :: content}"></div>
+    <div><h1>List of Books</h1></div>
+    <div>
+        <table>
+            <tr>
+                <th width="350px">Title</th>
+                <th width="250px">Author</th>
+                <th width="150px">Genre</th>
+                <th width="50px">Pages</th>
+                <th width="50px"></th>
+                <th width="50px"></th>
+            </tr>
+            <tr th:each="book: ${books}">
+                <td><a th:href="@{'/books/view?id=' + ${book.id}}" th:text="${book.title}"></a></td>
+                <td>
+                    <ul th:each="author : ${book.authors}">
+<!--                        <span th:text="${author.name}"></span>-->
+                        <a th:href="@{'/authors/view?id=' + ${author.id}}" th:text="${author.name}"></a>
+                    </ul>
+                </td>
+                <td th:text="${book.genre}"></td>
+                <td th:text="${book.numberOfPages}"></td>
+                <td>
+                    <form>
+                        <a th:href="@{'/books/edit-form/' + ${book.id}}" class="btn-icon">
+                            <img src="/images/Pen.png" alt="Edit book" class="btn-icon">
+                        </a>
+                    </form>
+                </td>
+                <td>
+                    <form th:id="'delete_book_form_' + ${book.id}" th:method="put" th:action="@{'/books/delete/' + ${book.id}}">
+                            <img src="/images/Delete.png" alt="Delete book" class="btn-icon"
+                                 th:onclick="document.getElementById('delete_book_form_[[${book.id}]]').submit();">
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <form>
+            <input type="button" onclick="location.href='/books/create-form'" value="Add book" class="btn" />
+        </form>
+    </div>
+    <div th:insert="~{footer :: copy}"></div>
+</body>
+</html>

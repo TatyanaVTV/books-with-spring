@@ -3,6 +3,7 @@ package ru.vtvhw.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.vtvhw.dao.BooksDao;
+import ru.vtvhw.model.Author;
 import ru.vtvhw.model.Book;
 
 import java.util.List;
@@ -20,23 +21,35 @@ public class BooksService {
     }
 
     public List<Book> getAllBooks() {
-        return booksDao.getAllBooks();
+        return booksDao.getAll();
     }
 
-    public Book getBookById(long bookId) {
-        return booksDao.getBookById(bookId);
+    public Book getEntity(long bookId) {
+        return booksDao.get(bookId);
     }
 
-    public void createBook(Book book) {
-        booksDao.addBook(book);
+    public void createEntity(Book book) {
+        booksDao.save(book);
     }
 
-    public void updateBook(long bookId, Book book) {
-        booksDao.updateBookById(bookId, book);
+    public void updateEntity(Book book) {
+        booksDao.update(book);
     }
 
-    public void deleteBookById(long bookId) {
-        booksDao.deleteBookById(bookId);
+    public void deleteEntity(long bookId) {
+        booksDao.delete(bookId);
+    }
+
+    public void addAuthor(Book book, Author author) {
+        book.addAuthor(author);
+        author.addBook(book);
+        booksDao.save(book);
+    }
+
+    public void removeAuthor(Book book, Author author) {
+        author.removeBook(book);
+        book.removeAuthor(author);
+        booksDao.save(book);
     }
 
     public void loadBooks(String fileName) {

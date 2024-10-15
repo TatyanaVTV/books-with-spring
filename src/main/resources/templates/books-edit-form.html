@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html xmlns:th="htt[://thymeleaf.org">
+<head>
+    <title>Books Service</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="/css/style-content.css">
+    <link rel="stylesheet" href="/css/style-header.css">
+</head>
+    <body>
+        <div th:insert="~{header :: content}"></div>
+        <div>
+            <h1>Modifying a Book</h1>
+        </div>
+        <div>
+            <form th:method="put" th:action="@{/books/update}">
+                <table>
+                    <tr>
+                        <td class="borderless-cnt"><input id="bookId" type="hidden" name="id" th:value="*{book.id}"/></td>
+                    </tr>
+                    <tr class="borderless">
+                        <td class="borderless"><label for="title">Title:</label></td>
+                        <td class="borderless-cnt">
+                            <input id="title" type="text" name="title" th:value="*{book.title}" maxlength="100" required/>
+                        </td>
+                    </tr>
+                    <tr class="borderless">
+                        <td class="borderless"><label for="genre">Genre:</label></td>
+                        <td class="borderless-cnt">
+                            <input id="genre" type="text" name="genre" th:value="*{book.genre}" maxlength="50"/>
+                        </td>
+                    </tr>
+                    <tr class="borderless">
+                        <td class="borderless"><label for="pagesNb">Number of pages:</label></td>
+                        <td class="borderless-cnt">
+                            <input type="number" max="3000" id="pagesNb" th:value="*{book.numberOfPages}" name="numberOfPages"/>
+                        </td>
+                    </tr>
+                    <tr class="borderless">
+                        <td class="borderless"></td>
+                        <td class="borderless">
+                            <input id="saveBookBtn" type="submit" value="Save" class="btn" />
+                        </td>
+                    </tr>
+                </table>
+                <br>
+            </form>
+        </div>
+        <div>
+            <h4>Book authors:</h4>
+            <table>
+                <tr th:each="author: ${authors}">
+                    <td><a th:href="@{'/authors/view?id=' + ${author.id}}" th:text="${author.name}"></a></td>
+                    <td>
+                        <form id="'delete_author_book_form_' + ${author.id}" th:method="put"
+                              th:action="@{'/books/delete/' + ${book.id} + '/author/' + ${author.id}}">
+<!--                            <input id="removedAuthorId" type="hidden" name="authorId" th:value="*{author.id}"/>-->
+                            <img src="/images/Delete.png" alt="Delete" class="btn-icon"
+                                 onclick="document.getElementById('delete_author_book_form_[[${author.id}]]').submit();">
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <hr>
+            <form>
+                <input type="button" onclick="location.href='/books/'" value="<< Books" class="btn" />
+<!--                <input type="button" onclick="javascript:history.back()" value="<< Back" class="btn" />-->
+            </form>
+        </div>
+        <div th:insert="~{footer :: copy}"></div>
+    </body>
+</html>

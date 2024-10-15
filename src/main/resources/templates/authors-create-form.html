@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html xmlns:th="htt[://thymeleaf.org">
+<head>
+    <title>Books Service</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="/css/style-content.css">
+    <link rel="stylesheet" href="/css/style-header.css">
+</head>
+    <body>
+        <div th:insert="~{header :: content}"></div>
+        <div>
+            <h1>Creating an Author</h1>
+        </div>
+        <div>
+            <form method="post" action="/authors/create">
+                <table>
+                    <tr class="borderless">
+                        <td class="borderless"><label for="name">Name:</label></td>
+                        <td class="borderless-cnt"><input id="name" type="text" name="name" maxlength="100" required/></td>
+                    </tr>
+                    <tr class="borderless">
+                        <td class="borderless"></td>
+                        <td class="borderless"><input id="saveBookBtn" type="submit" value="Save" class="btn" /></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div>
+            <hr>
+            <form>
+                <input type="button" onclick="location.href='/authors/'" value="<< Back" class="btn" />
+            </form>
+        </div>
+        <div th:insert="~{footer :: copy}"></div>
+    </body>
+</html>

@@ -1,4 +1,4 @@
-package ru.vtvhw.model;
+package ru.vtvhw.exceptions;
 
 public class BooksLoadFileFormatException extends RuntimeException {
     private final static String FORMAT_MSG = "Wrong format of file for books loading. " +
