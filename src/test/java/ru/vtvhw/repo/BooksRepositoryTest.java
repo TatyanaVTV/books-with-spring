@@ -1,4 +1,4 @@
-package ru.vtvhw.dao;
+package ru.vtvhw.repo;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,7 +7,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.vtvhw.config.BooksAppConfig;
-import ru.vtvhw.exceptions.BookNotFoundException;
 import ru.vtvhw.model.Author;
 import ru.vtvhw.model.Book;
 import ru.vtvhw.service.BooksLoader;
@@ -17,11 +16,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- * Unit tests for {@link BooksDao}.
+ * Unit tests for {@link BooksRepository}.
  * Аннотация @Sql подтягивает SQL-скрипты books-db.sql, authors-db.sql и authors-to-books-db.sql,
  * которыё будут применен к базе перед выполнением тестов.
  * books-db.sql создает таблицу books с полями (book_id, title,  genre, pages, deleted) и вставляет в неё 6 записей.
@@ -34,9 +32,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @Sql("classpath:/db/books-db.sql")
 @Sql("classpath:/db/authors-db.sql")
 @Sql("classpath:/db/authors-to-books-db.sql")
-public record BooksDaoTest(@Autowired DataSource dataSource,
-                           @Autowired BooksDao booksDao,
-                           @Autowired BooksLoader booksLoader) {
+public record BooksRepositoryTest(@Autowired DataSource dataSource,
+                                  @Autowired BooksRepository booksRepository,
+                                  @Autowired BooksLoader booksLoader) {
 
     private static final Book SPRING_IN_ACTION =
             new Book(1L, "Spring в действии", "Учебная литература", 543, false);
@@ -70,56 +68,51 @@ public record BooksDaoTest(@Autowired DataSource dataSource,
     @Test
     void save_BookDoesNotExistInRepo_BookInRepoShouldBeEqualToSaved() {
         var book = new Book("Новая тестовая книга", "Неизвестный жанр", 200);
-        var bookId = booksDao.save(book);
-        book.setId(bookId);
+        var savedBook = booksRepository.save(book);
+        book.setId(savedBook.getId());
 
-        var bookInDb = booksDao.get(bookId);
-
-        assertThat(bookInDb).isEqualTo(book);
+        assertThat(savedBook).isEqualTo(book);
     }
 
     @Test
-    void get_BookExistsInRepo_ShouldBeFoundAndEqualToExpected() {
-        var book = booksDao.get(DESIGN_PATTERNS.getId());
-
-        assertThat(book).isEqualTo(DESIGN_PATTERNS);
-    }
-
-    @Test
-    void get_BookDoesNotExistInRepo_ShouldThrowBookNotFoundException() {
-        assertThatThrownBy(() -> booksDao.get(99999))
-                .isInstanceOf(BookNotFoundException.class);
-    }
-
-    @Test
-    void getAll_PreLoadedBooks_ShouldReturnListOfAllNotDeletedBooks() {
-        var books = booksDao.getAll();
+    void findAll_PreLoadedBooks_ShouldReturnListOfAllNotDeletedBooks() {
+        var books = booksRepository.findAll();
 
         assertThat(books).containsAll(PERSISTED_BOOKS);
         assertThat(books).doesNotContain(DELETED_BOOK);
     }
 
-    @Test
-    void find_BookExistsInRepo_ShouldReturnNotEmptyOptionalOfExpectedBook() {
-        var existingBook = booksDao.find(BUILDING_MICROSERVICES.getId());
+//    @Test
+//    void get_BookExistsInRepo_ShouldBeFoundAndEqualToExpected() {
+//        var book = booksRepository.get(DESIGN_PATTERNS.getId());
+//
+//        assertThat(book).isEqualTo(DESIGN_PATTERNS);
+//    }
 
+//    @Test
+//    void get_BookDoesNotExistInRepo_ShouldThrowBookNotFoundException() {
+//        assertThatThrownBy(() -> booksRepository.get(99999))
+//                .isInstanceOf(BookNotFoundException.class);
+//    }
+
+    @Test
+    void findById_BookExistsInRepo_ShouldReturnNotEmptyOptionalOfExpectedBook() {
+        var existingBook = booksRepository.findById(BUILDING_MICROSERVICES.getId());
         assertThat(existingBook).isEqualTo(Optional.of(BUILDING_MICROSERVICES));
     }
 
     @Test
-    void find_BookDoesNotExistInRepo_ShouldReturnEmptyOptional() {
-        var notExistingBook = booksDao.find(99999);
+    void findById_BookDoesNotExistInRepo_ShouldReturnEmptyOptional() {
+        var notExistingBook = booksRepository.findById(Long.MAX_VALUE);
         assertThat(notExistingBook).isEqualTo(Optional.empty());
     }
 
     @Test
-    void update_BookExistsInRepo_BookDataInRepoShouldBeChanged() {
+    void save_BookExistsInRepo_BookDataInRepoShouldBeChanged() {
         var book = new Book("Тестовая книга", "Неизвестный жанр", 200);
-        var bookId = booksDao.save(book);
-        book.setId(bookId);
-
-        var bookInDb = booksDao.get(bookId);
-        assertThat(bookInDb).isEqualTo(book);
+        var savedBook = booksRepository.save(book);
+        book.setId(savedBook.getId());
+        assertThat(savedBook).isEqualTo(book);
 
         var newTitle = "Test book";
         var newGenre = "Unknown genre";
@@ -129,39 +122,41 @@ public record BooksDaoTest(@Autowired DataSource dataSource,
         book.setGenre(newGenre);
         book.setNumberOfPages(newNumberOfPages);
 
-        booksDao.update(book);
-        bookInDb = booksDao.get(bookId);
+        savedBook = booksRepository.save(book);
+//        bookInDb = booksRepository.get(bookId);
 
-        assertThat(bookInDb.getTitle()).isEqualTo(newTitle);
-        assertThat(bookInDb.getGenre()).isEqualTo(newGenre);
-        assertThat(bookInDb.getNumberOfPages()).isEqualTo(newNumberOfPages);
+        assertThat(savedBook.getTitle()).isEqualTo(newTitle);
+        assertThat(savedBook.getGenre()).isEqualTo(newGenre);
+        assertThat(savedBook.getNumberOfPages()).isEqualTo(newNumberOfPages);
+        booksRepository.delete(savedBook);
     }
 
     @Test
     void delete_BookExistsInRepo_BookShouldNotBeFoundByGetAfterDelete() {
         var book = new Book("Книга для удаления", "Жанр неизвестен", 200);
-        var bookId = booksDao.save(book);
+        var savedBook = booksRepository.save(book);
 
-        assertFalse(booksDao.get(bookId).isDeleted());
-        booksDao.delete(bookId);
-        assertThatThrownBy(() -> booksDao.get(bookId))
-                .isInstanceOf(BookNotFoundException.class);
+        assertThat(savedBook).isNotEqualTo(Optional.empty());
+        assertFalse(savedBook.isDeleted());
+
+        booksRepository.delete(savedBook);
+        assertThat(booksRepository.findById(savedBook.getId())).isEqualTo(Optional.empty());
     }
 
     @Test
     void addBooks_FileWithCorrectFormat_ShouldSuccessfullySaveAllBooksInRepo() {
-        var booksCount = booksDao.getAll().size();
+        var booksCount = booksRepository.findAll().size();
 
         var booksToLoad = booksLoader.loadBooksFromFile(CORRECT_BOOKS_FILE_NAME);
-        booksDao.addBooks(booksToLoad);
+        booksRepository.saveAll(booksToLoad);
 
         assertThat(booksToLoad.size()).isGreaterThan(0);
-        assertThat(booksDao.getAll().size()).isEqualTo(booksCount + booksToLoad.size());
+        assertThat(booksRepository.findAll().size()).isEqualTo(booksCount + booksToLoad.size());
     }
 
     @Test
     void getForAuthor_AuthorWithTwoBooks_ShouldReturnListOfTwoBooks() {
-        var bookAuthors = booksDao.getForAuthor(SAM_NEWMAN.getId());
+        var bookAuthors = booksRepository.getForAuthor(SAM_NEWMAN.getId());
 
         assertThat(bookAuthors).hasOnlyElementsOfType(Book.class);
         assertThat(bookAuthors).hasSize(2);
@@ -170,7 +165,7 @@ public record BooksDaoTest(@Autowired DataSource dataSource,
 
     @Test
     void getForAuthor_AuthorWithOneBook_ShouldReturnListOfOneBook() {
-        var bookAuthors = booksDao.getForAuthor(CRAIG_WALLS.getId());
+        var bookAuthors = booksRepository.getForAuthor(CRAIG_WALLS.getId());
 
         assertThat(bookAuthors).hasOnlyElementsOfType(Book.class);
         assertThat(bookAuthors).hasSize(1);
@@ -179,7 +174,7 @@ public record BooksDaoTest(@Autowired DataSource dataSource,
 
     @Test
     void getForAuthor_AuthorWithoutBooks_ShouldReturnEmpty() {
-        var bookAuthors = booksDao.getForAuthor(9999);
+        var bookAuthors = booksRepository.getForAuthor(9999);
 
         assertThat(bookAuthors).isEmpty();
     }

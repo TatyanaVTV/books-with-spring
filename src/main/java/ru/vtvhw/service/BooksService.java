@@ -2,58 +2,64 @@ package ru.vtvhw.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.vtvhw.dao.BooksDao;
+import ru.vtvhw.repo.BooksRepository;
+import ru.vtvhw.exceptions.BookNotFoundException;
 import ru.vtvhw.model.Author;
 import ru.vtvhw.model.Book;
 
 import java.util.List;
 
 @Service
-public class BooksService {
+public class BooksService implements IEntityService<Book> {
 
-    private final BooksDao booksDao;
+    private final BooksRepository booksRepository;
     private final BooksLoader booksLoader;
 
     @Autowired
-    public BooksService(BooksDao booksDao, BooksLoader booksLoader) {
-        this.booksDao = booksDao;
+    public BooksService(BooksRepository booksRepository, BooksLoader booksLoader) {
+        this.booksRepository = booksRepository;
         this.booksLoader = booksLoader;
     }
 
-    public List<Book> getAllBooks() {
-        return booksDao.getAll();
+    @Override
+    public List<Book> findAll() {
+        return booksRepository.findAll();
     }
 
-    public Book getEntity(long bookId) {
-        return booksDao.get(bookId);
+    @Override
+    public Book findById(long bookId) {
+        return booksRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(bookId));
     }
 
-    public void createEntity(Book book) {
-        booksDao.save(book);
+    @Override
+    public Book save(Book book) {
+        return booksRepository.save(book);
     }
 
-    public void updateEntity(Book book) {
-        booksDao.update(book);
+    @Override
+    public void  delete(Book book) {
+        booksRepository.delete(book);
     }
 
-    public void deleteEntity(long bookId) {
-        booksDao.delete(bookId);
+    @Override
+    public void deleteById(long bookId) {
+        booksRepository.deleteById(bookId);
     }
 
     public void addAuthor(Book book, Author author) {
         book.addAuthor(author);
         author.addBook(book);
-        booksDao.save(book);
+        booksRepository.save(book);
     }
 
     public void removeAuthor(Book book, Author author) {
         author.removeBook(book);
         book.removeAuthor(author);
-        booksDao.save(book);
+        booksRepository.save(book);
     }
 
     public void loadBooks(String fileName) {
         var booksToLoad = booksLoader.loadBooksFromFile(fileName);
-        booksDao.addBooks(booksToLoad);
+        booksRepository.saveAll(booksToLoad);
     }
 }

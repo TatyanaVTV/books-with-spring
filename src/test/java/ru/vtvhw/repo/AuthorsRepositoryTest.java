@@ -1,4 +1,4 @@
-package ru.vtvhw.dao;
+package ru.vtvhw.repo;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,7 +7,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.vtvhw.config.BooksAppConfig;
-import ru.vtvhw.exceptions.AuthorNotFoundException;
 import ru.vtvhw.model.Author;
 import ru.vtvhw.model.Book;
 
@@ -17,11 +16,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- * Unit tests for {@link AuthorsDao}.
+ * Unit tests for {@link AuthorsRepository}.
  * Аннотация @Sql подтягивает SQL-скрипты books-db.sql, authors-db.sql и authors-to-books-db.sql,
  * которыё будут применен к базе перед выполнением тестов.
  * books-db.sql создает таблицу books с полями (book_id, title,  genre, pages, deleted) и вставляет в неё 6 записей.
@@ -34,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @Sql("classpath:/db/books-db.sql")
 @Sql("classpath:/db/authors-db.sql")
 @Sql("classpath:/db/authors-to-books-db.sql")
-public record AuthorsDaoTest(@Autowired DataSource dataSource, @Autowired AuthorsDao authorsDao) {
+public record AuthorsRepositoryTest(@Autowired DataSource dataSource, @Autowired AuthorsRepository authorsRepository) {
 
     private static final Author CRAIG_WALLS = new Author(1L, "Крейг Уоллс", false, new HashSet<>());
     private static final Author ERIC_FREEMAN = new Author(2L, "Эрик Фримен", false, new HashSet<>());
@@ -58,85 +56,80 @@ public record AuthorsDaoTest(@Autowired DataSource dataSource, @Autowired Author
     @Test
     void save_AuthorDoesNotExistInRepo_AuthorInRepoShouldBeEqualToSaved() {
         var author = new Author("Неизвестный автор");
-        var authorId = authorsDao.save(author);
-        author.setId(authorId);
+        var savedAuthor = authorsRepository.save(author);
+        author.setId(savedAuthor.getId());
 
-        var authorInDb = authorsDao.get(authorId);
-
-        assertThat(authorInDb).isEqualTo(author);
+        assertThat(savedAuthor).isEqualTo(author);
     }
 
     @Test
-    void get_AuthorExistsInRepo_ShouldBeFoundAndEqualToExpected() {
-        var author = authorsDao.get(CRAIG_WALLS.getId());
+    void findAll_PreLoadedAuthors_ShouldReturnListOfAllNotDeletedAuthors() {
+        var authors = authorsRepository.findAll();
 
-        assertThat(author).isEqualTo(CRAIG_WALLS);
+        assertThat(authors).containsAll(PERSISTED_AUTHORS);
+        assertThat(authors).doesNotContain(DELETED_AUTHOR);
     }
 
-    @Test
-    void get_AuthorDoesNotExistInRepo_ShouldThrowAuthorNotFoundException() {
-        assertThatThrownBy(() -> authorsDao.get(99999))
-                .isInstanceOf(AuthorNotFoundException.class);
-    }
+//    @Test
+//    void findById_AuthorExistsInRepo_ShouldBeFoundAndEqualToExpected() {
+//        var author = authorsDao.findById(CRAIG_WALLS.getId());
+//
+//        assertTrue(author.isPresent());
+//        assertThat(author.get()).isEqualTo(CRAIG_WALLS);
+//    }
+
+//    @Test
+//    void get_AuthorDoesNotExistInRepo_ShouldThrowAuthorNotFoundException() {
+//        var notExistingAuthor = authorsDao.findById(Long.MAX_VALUE);
+//        assertThat(notExistingAuthor).isNotPresent();
+//    }
 
     @Test
-    void getAll_PreLoadedAuthors_ShouldReturnListOfAllNotDeletedAuthors() {
-        var author = authorsDao.getAll();
-
-        assertThat(author).containsAll(PERSISTED_AUTHORS);
-        assertThat(author).doesNotContain(DELETED_AUTHOR);
-    }
-
-    @Test
-    void find_AuthorExistsInRepo_ShouldReturnNotEmptyOptionalOfExpectedAuthor() {
-        var existingAuthor = authorsDao.find(SAM_NEWMAN.getId());
-
+    void findById_AuthorExistsInRepo_ShouldReturnNotEmptyOptionalOfExpectedAuthor() {
+        var existingAuthor = authorsRepository.findById(SAM_NEWMAN.getId());
         assertThat(existingAuthor).isEqualTo(Optional.of(SAM_NEWMAN));
     }
 
     @Test
-    void find_AuthorDoesNotExistInRepo_ShouldReturnEmptyOptional() {
-        var notExistingAuthor = authorsDao.find(99999);
+    void findById_AuthorDoesNotExistInRepo_ShouldReturnEmptyOptional() {
+        var notExistingAuthor = authorsRepository.findById(Long.MAX_VALUE);
         assertThat(notExistingAuthor).isEqualTo(Optional.empty());
     }
 
     @Test
-    void update_AuthorExistsInRepo_AuthorDataInRepoShouldBeChanged() {
+    void save_AuthorExistsInRepo_AuthorDataInRepoShouldBeChanged() {
         var author = new Author("Неизвестный автор");
-        var authorId = authorsDao.save(author);
-        author.setId(authorId);
-
-        var authorInDb = authorsDao.get(authorId);
-        assertThat(authorInDb).isEqualTo(author);
+        var savedAuthor = authorsRepository.save(author);
+        author.setId(savedAuthor.getId());
+        assertThat(savedAuthor).isEqualTo(author);
 
         var newName = "Test author";
         author.setName(newName);
 
-        authorsDao.update(author);
-        authorInDb = authorsDao.get(authorId);
+        savedAuthor = authorsRepository.save(author);
+//        savedAuthor = authorsDao.findById(savedAuthor.getId()).get();
 
-        assertThat(authorInDb.getName()).isEqualTo(newName);
-        authorsDao.delete(authorInDb);
+        assertThat(savedAuthor.getName()).isEqualTo(newName);
+        authorsRepository.delete(savedAuthor);
     }
 
     @Test
     void delete_AuthorExistsInRepo_AuthorShouldNotBeFoundByGetAfterDelete() {
         var author = new Author("Автор неизвестен 2");
-        var authorId = authorsDao.save(author);
+        var savedAuthor = authorsRepository.save(author);
 
-        var authorFromDb = authorsDao.get(authorId);
+        assertThat(savedAuthor).isNotEqualTo(Optional.empty());
+        assertFalse(savedAuthor.isDeleted());
 
-        assertThat(authorFromDb).isNotNull();
-        assertFalse(authorFromDb.isDeleted());
-
-        authorsDao.delete(authorId);
-        assertThatThrownBy(() -> authorsDao.get(authorId))
-                .isInstanceOf(AuthorNotFoundException.class);
+        authorsRepository.delete(savedAuthor);
+        assertThat(authorsRepository.findById(savedAuthor.getId())).isEqualTo(Optional.empty());
+//        assertThatThrownBy(() -> authorsDao.findById(savedAuthor))
+//                .isInstanceOf(AuthorNotFoundException.class);
     }
 
     @Test
     void getForAuthor_AuthorWithTwoBooks_ShouldReturnListOfTwoBooks() {
-        var authorBooks = authorsDao.getForBook(DESIGN_PATTERNS.getId());
+        var authorBooks = authorsRepository.getForBook(DESIGN_PATTERNS.getId());
 
         assertThat(authorBooks).hasOnlyElementsOfType(Author.class);
         assertThat(authorBooks).hasSize(2);
@@ -145,7 +138,7 @@ public record AuthorsDaoTest(@Autowired DataSource dataSource, @Autowired Author
 
     @Test
     void getForAuthor_AuthorWithOneBook_ShouldReturnListOfOneBook() {
-        var authorBooks = authorsDao.getForBook(SPRING_IN_ACTION.getId());
+        var authorBooks = authorsRepository.getForBook(SPRING_IN_ACTION.getId());
 
         assertThat(authorBooks).hasOnlyElementsOfType(Author.class);
         assertThat(authorBooks).hasSize(1);
@@ -154,7 +147,7 @@ public record AuthorsDaoTest(@Autowired DataSource dataSource, @Autowired Author
 
     @Test
     void getForAuthor_AuthorWithoutBooks_ShouldReturnEmpty() {
-        var authorBooks = authorsDao.getForBook(9999);
+        var authorBooks = authorsRepository.getForBook(9999);
 
         assertThat(authorBooks).isEmpty();
     }

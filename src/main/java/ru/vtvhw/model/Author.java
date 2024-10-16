@@ -18,7 +18,7 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 public class Author {
 
     @Id
-    @SequenceGenerator(name = "authorIdSeq", sequenceName = "authors_author_id_seq", initialValue = 6, allocationSize = 1)
+    @SequenceGenerator(name = "authorIdSeq", sequenceName = "authors_author_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = SEQUENCE, generator = "authorIdSeq")
     @Column(name = "author_id")
     private long id;
@@ -38,10 +38,6 @@ public class Author {
             fetch = FetchType.LAZY,
             cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             targetEntity = Book.class)
-//    @JoinTable(name = "author_books",
-//            joinColumns = @JoinColumn(name = "author_id", referencedColumnName = "author_id", nullable = false),
-//            inverseJoinColumns = @JoinColumn(name = "book_id", referencedColumnName = "book_id"))//,
-////            uniqueConstraints = { @UniqueConstraint(name = "UniqueAuthorAndBook", columnNames = { "author_id", "book_id" } )})
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Book> books = new HashSet<>();

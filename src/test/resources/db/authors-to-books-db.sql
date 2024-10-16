@@ -5,11 +5,11 @@ CREATE TABLE author_books
     author_id bigint NOT NULL,
     book_id bigint NOT NULL,
     CONSTRAINT author_books_pkey PRIMARY KEY (author_id, book_id),
-    CONSTRAINT fkkudd737sm6cxhjgn948yk599b FOREIGN KEY (author_id)
+    CONSTRAINT fk_authors_author_id FOREIGN KEY (author_id)
         REFERENCES public.authors (author_id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION,
-    CONSTRAINT fkm8j8158lb50ea4juixpc78v13 FOREIGN KEY (book_id)
+    CONSTRAINT fk_books_book_id FOREIGN KEY (book_id)
         REFERENCES public.books (book_id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION

@@ -2,7 +2,8 @@ package ru.vtvhw.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.vtvhw.dao.AuthorsDao;
+import ru.vtvhw.repo.AuthorsRepository;
+import ru.vtvhw.exceptions.AuthorNotFoundException;
 import ru.vtvhw.model.Author;
 import ru.vtvhw.model.Book;
 
@@ -12,47 +13,42 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthorsService implements IEntityService<Author> {
 
-    private final AuthorsDao authorsDao;
+    private final AuthorsRepository authorsRepository;
 
     @Override
-    public List<Author> getAllEntities() {
-        return authorsDao.getAll();
+    public List<Author> findAll() {
+        return authorsRepository.findAll();
     }
 
     @Override
-    public Author getEntity(long entityId) {
-        return authorsDao.get(entityId);
+    public Author findById(long entityId) {
+        return authorsRepository.findById(entityId).orElseThrow(() -> new AuthorNotFoundException(entityId));
     }
 
     @Override
-    public void createEntity(Author entity) {
-        authorsDao.save(entity);
+    public Author save(Author entity) {
+        return authorsRepository.save(entity);
     }
 
     @Override
-    public void updateEntity(Author entity) {
-        authorsDao.update(entity);
+    public void delete(Author entity) {
+        authorsRepository.delete(entity);
     }
 
     @Override
-    public void deleteEntity(Author entity) {
-        authorsDao.delete(entity);
-    }
-
-    @Override
-    public void deleteEntity(long entityId) {
-        authorsDao.delete(entityId);
+    public void deleteById(long entityId) {
+        authorsRepository.deleteById(entityId);
     }
 
     public void addBook(Author author, Book book) {
         author.addBook(book);
         book.addAuthor(author);
-        authorsDao.save(author);
+        authorsRepository.save(author);
     }
 
     public void removeBook(Author author, Book book) {
         author.removeBook(book);
         book.removeAuthor(author);
-        authorsDao.save(author);
+        authorsRepository.save(author);
     }
 }

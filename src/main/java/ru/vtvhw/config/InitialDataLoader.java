@@ -2,12 +2,17 @@ package ru.vtvhw.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.vtvhw.dao.AuthorsDao;
-import ru.vtvhw.dao.BooksDao;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
+import ru.vtvhw.repo.AuthorsRepository;
+import ru.vtvhw.repo.BooksRepository;
 import ru.vtvhw.model.Author;
 import ru.vtvhw.model.Book;
 
-//@Component
+import java.util.List;
+
+@Component
 @RequiredArgsConstructor
 public class InitialDataLoader {
 
@@ -27,15 +32,18 @@ public class InitialDataLoader {
             new Book(6L, "От монолита к микросервисам", "Учебная литература", 272);
 
     @Autowired
-    private final BooksDao booksDao;
+    private final BooksRepository booksRepository;
 
     @Autowired
-    private final AuthorsDao authorsDao;
+    private final AuthorsRepository authorsRepository;
 
-    //    @EventListener(ApplicationReadyEvent.class)
+    @EventListener(ApplicationReadyEvent.class)
     public void loadInitialDataAfterStartup() {
-        loadBooks();
-        loadAuthors();
+        booksRepository.saveAll(List.of(SPRING_IN_ACTION, DESIGN_PATTERNS, THE_PHILOSOPHY_OF_JAVA, BUILDING_MICROSERVICES));
+        authorsRepository.saveAll(List.of(CRAIG_WALLS, ERIC_FREEMAN, ELIZABETH_ROBSON, BRUCE_ECKEL, SAM_NEWMAN));
+        var deletedBook = booksRepository.save(DELETED_BOOK);
+        booksRepository.save(MONOLITH_TO_MICROSERVICES);
+        var deletedAuthor = authorsRepository.save(DELETED_AUTHOR);
 
         SPRING_IN_ACTION.getAuthors().add(CRAIG_WALLS);
         CRAIG_WALLS.getBooks().add(SPRING_IN_ACTION);
@@ -56,35 +64,13 @@ public class InitialDataLoader {
         DELETED_BOOK.getAuthors().add(DELETED_AUTHOR);
         DELETED_AUTHOR.getBooks().add(DELETED_BOOK);
 
-        authorsDao.update(CRAIG_WALLS);
-        authorsDao.update(ERIC_FREEMAN);
-        authorsDao.update(ELIZABETH_ROBSON);
-        authorsDao.update(BRUCE_ECKEL);
-        authorsDao.update(SAM_NEWMAN);
-        authorsDao.update(DELETED_AUTHOR);
+        authorsRepository.saveAll(List.of(CRAIG_WALLS, ERIC_FREEMAN, ELIZABETH_ROBSON,
+                BRUCE_ECKEL, SAM_NEWMAN, DELETED_AUTHOR));
 
-        authorsDao.delete(DELETED_AUTHOR);
-        booksDao.delete(DELETED_BOOK);
+        authorsRepository.delete(deletedAuthor);
+        booksRepository.delete(deletedBook);
 
-        booksDao.getAll().forEach(System.out::println);
-        authorsDao.getAll().forEach(System.out::println);
-    }
-
-    private void loadAuthors() {
-        authorsDao.save(CRAIG_WALLS);
-        authorsDao.save(ERIC_FREEMAN);
-        authorsDao.save(ELIZABETH_ROBSON);
-        authorsDao.save(BRUCE_ECKEL);
-        authorsDao.save(SAM_NEWMAN);
-        authorsDao.save(DELETED_AUTHOR);
-    }
-
-    private void loadBooks() {
-        booksDao.save(SPRING_IN_ACTION);
-        booksDao.save(DESIGN_PATTERNS);
-        booksDao.save(THE_PHILOSOPHY_OF_JAVA);
-        booksDao.save(BUILDING_MICROSERVICES);
-        booksDao.save(DELETED_BOOK);
-        booksDao.save(MONOLITH_TO_MICROSERVICES);
+        booksRepository.findAll().forEach(System.out::println);
+        authorsRepository.findAll().forEach(System.out::println);
     }
 }

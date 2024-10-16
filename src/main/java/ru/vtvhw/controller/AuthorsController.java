@@ -18,13 +18,13 @@ public class AuthorsController {
 
     @GetMapping("/")
     public String authors(Model model) {
-        model.addAttribute("authors", authorsService.getAllEntities());
+        model.addAttribute("authors", authorsService.findAll());
         return "authors-list-form";
     }
 
     @GetMapping("/view")
     public String viewAuthor(@RequestParam("id") long authorId, Model model) {
-        var author = authorsService.getEntity(authorId);
+        var author = authorsService.findById(authorId);
         model.addAttribute("author", author);
         model.addAttribute("books", author.getBooks());
         return "authors-view-form";
@@ -37,13 +37,13 @@ public class AuthorsController {
 
     @PostMapping("/create")
     public String createAuthor(Author author) {
-        authorsService.createEntity(author);
+        authorsService.save(author);
         return "redirect:/authors/";
     }
 
     @GetMapping("/edit-form/{authorId}")
     public String editForm(@PathVariable("authorId") String authorId, Model model) {
-        var author = authorsService.getEntity(Long.parseLong(authorId));
+        var author = authorsService.findById(Long.parseLong(authorId));
         model.addAttribute("author", author);
         model.addAttribute("books", author.getBooks());
         return "authors-edit-form";
@@ -51,19 +51,19 @@ public class AuthorsController {
 
     @PutMapping("/update")
     public String updateAuthor(Author author) {
-        authorsService.updateEntity(author);
+        authorsService.save(author);
         return "redirect:/authors/";
     }
 
     @PutMapping("/delete/{authorId}")
     public String deleteAuthor(@PathVariable("authorId") long authorId) {
-        authorsService.deleteEntity(authorId);
+        authorsService.deleteById(authorId);
         return "redirect:/authors/";
     }
 
     @PutMapping("/delete/{authorId}/book/{removedBookId}")
     public String deleteBookFromAuthor(@PathVariable("authorId") long authorId, @PathVariable("removedBookId") long bookId) {
-        var author = authorsService.getEntity(authorId);
+        var author = authorsService.findById(authorId);
         var bookToRemove = author.getBooks().stream().filter(book -> book.getId() == bookId).findFirst();
         bookToRemove.ifPresent(it -> authorsService.removeBook(author, it));
         return "redirect:/authors/edit-form/" + author.getId();

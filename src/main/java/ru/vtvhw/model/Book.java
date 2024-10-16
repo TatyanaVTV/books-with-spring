@@ -18,16 +18,13 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 public class Book {
 
     @Id
-    @SequenceGenerator(name = "bookIdSeq", sequenceName = "books_book_id_seq", initialValue = 6, allocationSize = 1)
+    @SequenceGenerator(name = "bookIdSeq", sequenceName = "books_book_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = SEQUENCE, generator = "bookIdSeq")
     @Column(name = "book_id")
     private long id;
 
     @Column(nullable = false)
     private String title = "Unknown book";
-
-//    @Column
-//    private String author = "Unknown author";
 
     @Column
     private String genre = "Unknown genre";
@@ -43,16 +40,17 @@ public class Book {
             cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             targetEntity = Author.class)
     @JoinTable(name = "author_books",
-            joinColumns = @JoinColumn(name = "book_id", referencedColumnName = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "author_id", referencedColumnName = "author_id"))//,
-//            uniqueConstraints = { @UniqueConstraint(name = "UniqueAuthorAndBook", columnNames = { "author_id", "book_id" } )})
+            joinColumns = @JoinColumn(name = "book_id", referencedColumnName = "book_id",
+                    foreignKey = @ForeignKey(name = "fk_books_book_id")),
+            inverseJoinColumns = @JoinColumn(name = "author_id", referencedColumnName = "author_id",
+                    foreignKey = @ForeignKey(name = "fk_authors_author_id")),
+            uniqueConstraints = { @UniqueConstraint(name = "author_books_pkey", columnNames = { "author_id", "book_id" } )})
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<Author> authors = new HashSet<>();
 
     public Book(String title, String genre, int numberOfPages) {
         this.title = title;
-//        this.author = author;
         this.genre = genre;
         this.numberOfPages = numberOfPages;
         this.deleted = false;
