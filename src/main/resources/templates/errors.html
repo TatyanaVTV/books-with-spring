@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Books Service</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="/css/style-content.css">
+    <link rel="stylesheet" href="/css/style-header.css">
+</head>
+<body>
+<div th:insert="~{header :: content}"></div>
+<h1>Error!</h1>
+<br>
+<div>
+    Oops! Something went wrong!
+    <br>
+</div>
+<div>
+    <table class="borderless">
+        <tr class="borderless">
+            <br>
+            <td th:text="${errorMsg}" class="error"></td>
+        </tr>
+    </table>
+</div>
+<div>
+    <input type="button" onclick="javascript:history.back()" value="<< Back" class="btn" />
+</div>
+<div th:insert="~{footer :: copy}"></div>
+</body>
+</html>

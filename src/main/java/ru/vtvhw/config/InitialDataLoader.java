@@ -1,6 +1,7 @@
 package ru.vtvhw.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class InitialDataLoader {
 
     public static final Author CRAIG_WALLS = new Author(1L, "Крейг Уоллс");
@@ -70,7 +72,7 @@ public class InitialDataLoader {
         authorsRepository.delete(deletedAuthor);
         booksRepository.delete(deletedBook);
 
-        booksRepository.findAll().forEach(System.out::println);
-        authorsRepository.findAll().forEach(System.out::println);
+        log.info("Books loaded: {}", booksRepository.findAll());
+        log.info("Authors loaded: {}", authorsRepository.findAll());
     }
 }

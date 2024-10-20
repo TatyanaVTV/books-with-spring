@@ -41,12 +41,18 @@ public class AuthorsService implements IEntityService<Author> {
     }
 
     public void addBook(Author author, Book book) {
+        if (author == null || book == null) {
+            throw new IllegalArgumentException("Author and Book must not be null!");
+        }
         author.addBook(book);
         book.addAuthor(author);
         authorsRepository.save(author);
     }
 
     public void removeBook(Author author, Book book) {
+        if (author == null || book == null) {
+            throw new IllegalArgumentException("Author and Book must not be null!");
+        }
         author.removeBook(book);
         book.removeAuthor(author);
         authorsRepository.save(author);

@@ -19,6 +19,8 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.26.3")
     testImplementation("org.springframework:spring-test:6.1.13")
 
+    testImplementation("ch.qos.logback:logback-classic:1.5.11")
+
     // Spring Starters
     implementation("org.springframework.boot:spring-boot-starter-web:3.3.4")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf:3.3.4")

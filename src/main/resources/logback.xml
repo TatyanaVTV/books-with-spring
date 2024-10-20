@@ -1,0 +1,59 @@
+<configuration>
+    <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder" />
+    <import class="ch.qos.logback.core.ConsoleAppender" />
+    <import class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy" />
+    <import class="ch.qos.logback.core.rolling.RollingFileAppender" />
+    <import class="ch.qos.logback.classic.filter.ThresholdFilter" />
+
+    <property name="LOGS_ROOT" value="logs" />
+    <property name="DEBUG_FILE_NAME" value="debug" />
+    <property name="INFO_FILE_NAME" value="info" />
+    <property name="FILES_PATTERN" value="%d{dd-MM-yyyy HH:mm:ss.SSS} %thread %-5level %logger.%M - %msg%n" />
+    <property name="CONSOLE_PATTERN" value="%d{dd-MM-yyyy HH:mm:ss.SSS} %magenta(%thread) %highlight(%-5level) %logger.%M - %msg%n" />
+
+    <appender name="CONSOLE" class="ConsoleAppender">
+        <filter class="ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder class="PatternLayoutEncoder">
+            <pattern>${CONSOLE_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="DEBUG-FILE" class="RollingFileAppender">
+        <file>${LOGS_ROOT}/${DEBUG_FILE_NAME}.log</file>
+        <rollingPolicy class="SizeAndTimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${LOGS_ROOT}/${DEBUG_FILE_NAME}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <!-- keep 2 days' worth of history capped at 10Mb total size -->
+            <maxHistory>2</maxHistory>
+            <maxFileSize>10Mb</maxFileSize>
+        </rollingPolicy>
+        <encoder class="PatternLayoutEncoder">
+            <pattern>${FILES_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="INFO-FILE" class="RollingFileAppender">
+        <file>${LOGS_ROOT}/${INFO_FILE_NAME}.log</file>
+        <filter class="ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <rollingPolicy class="SizeAndTimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${LOGS_ROOT}/${INFO_FILE_NAME}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <!-- keep 3 days' worth of history capped at 10Mb total size -->
+            <maxHistory>3</maxHistory>
+            <maxFileSize>10Mb</maxFileSize>
+        </rollingPolicy>
+        <encoder class="PatternLayoutEncoder">
+            <pattern>${FILES_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <root level="DEBUG">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="DEBUG-FILE" />
+        <appender-ref ref="INFO-FILE" />
+    </root>
+</configuration>
